@@ -1,4 +1,11 @@
-import { createContext, type ReactNode, useContext, useEffect, useState } from 'react';
+import {
+  createContext,
+  type ReactNode,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 
 import { TaskRepositoryImpl } from '../../data/repositories/TaskRepositoryImpl';
 import { TaskRemoteService } from '../../data/services/TaskRemoteService';
@@ -18,6 +25,7 @@ type TaskContextValue = {
   updateTask: (task: Task) => Promise<Task>;
   deleteTask: (id: number) => Promise<void>;
   getTaskById: (id: number) => Task | undefined;
+  logLoadDurationAfterRender: () => void;
 };
 
 const TaskContext = createContext<TaskContextValue | undefined>(undefined);
@@ -34,12 +42,16 @@ export function TaskProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const loadStartedAtRef = useRef<Date | null>(null);
+  const hasLoggedLoadDurationRef = useRef(false);
 
   async function loadTasks() {
     if (loading || tasks.length > 0) {
       return;
     }
 
+    loadStartedAtRef.current = new Date();
+    hasLoggedLoadDurationRef.current = false;
     setLoading(true);
     setError(null);
 
@@ -51,6 +63,18 @@ export function TaskProvider({ children }: { children: ReactNode }) {
     } finally {
       setLoading(false);
     }
+  }
+
+  function logLoadDurationAfterRender() {
+    if (hasLoggedLoadDurationRef.current || loadStartedAtRef.current === null) {
+      return;
+    }
+
+    const end = new Date();
+    const duration = end.getTime() - loadStartedAtRef.current.getTime();
+
+    hasLoggedLoadDurationRef.current = true;
+    console.log(`API Load: ${duration} ms`);
   }
 
   async function createTask(task: TaskInput) {
@@ -108,6 +132,7 @@ export function TaskProvider({ children }: { children: ReactNode }) {
         updateTask,
         deleteTask,
         getTaskById,
+        logLoadDurationAfterRender,
       }}
     >
       {children}

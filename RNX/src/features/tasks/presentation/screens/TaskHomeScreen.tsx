@@ -1,5 +1,5 @@
-import { Alert, FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
-import { Button } from 'react-native';
+import { useEffect } from 'react';
+import { Alert, Button, FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 
 import { TaskListItem } from '../components/TaskListItem';
@@ -9,7 +9,26 @@ import type { RootStackParamList } from '../navigation/types';
 type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
 
 export function TaskHomeScreen({ navigation }: Props) {
-  const { tasks, loading, error, deleteTask, loadTasks } = useTasks();
+  const {
+    tasks,
+    loading,
+    error,
+    deleteTask,
+    loadTasks,
+    logLoadDurationAfterRender,
+  } = useTasks();
+
+  useEffect(() => {
+    if (!loading && tasks.length > 0) {
+      const timer = setTimeout(() => {
+        logLoadDurationAfterRender();
+      }, 0);
+
+      return () => clearTimeout(timer);
+    }
+
+    return undefined;
+  }, [loading, tasks.length, logLoadDurationAfterRender]);
 
   return (
     <View style={styles.screen}>
