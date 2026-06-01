@@ -16,19 +16,17 @@ class TaskListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: ListTile(
-        onTap: onTap,
-        title: Text(
-          task.title,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-        ),
-        subtitle: Text(task.completed ? 'Completada' : 'Pendiente'),
-        trailing: IconButton(
-          onPressed: onDelete,
-          icon: const Icon(Icons.delete_outline),
-        ),
+    return ListTile(
+      onTap: onTap,
+      title: Text(
+        task.title,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+      ),
+      subtitle: Text(task.completed ? 'Completada' : 'Pendiente'),
+      trailing: IconButton(
+        onPressed: onDelete,
+        icon: const Icon(Icons.delete_outline),
       ),
     );
   }
