@@ -41,6 +41,7 @@ class TaskApp extends StatelessWidget {
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
+        showPerformanceOverlay: false,
         title: 'Task Manager',
         theme: ThemeData(useMaterial3: true),
         home: const TaskHomeScreen(),

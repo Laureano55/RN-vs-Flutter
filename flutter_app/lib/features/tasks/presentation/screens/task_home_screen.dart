@@ -40,6 +40,16 @@ class TaskHomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final taskProvider = context.watch<TaskProvider>();
 
+    if (!taskProvider.isLoading &&
+        taskProvider.tasks.isNotEmpty &&
+        !taskProvider.hasLoggedLoadDuration) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (context.mounted) {
+          context.read<TaskProvider>().logLoadDurationAfterRender();
+        }
+      });
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Task Manager'),

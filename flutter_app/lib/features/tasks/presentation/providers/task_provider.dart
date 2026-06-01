@@ -26,17 +26,23 @@ class TaskProvider extends ChangeNotifier {
   bool _isLoading = false;
   bool _isSaving = false;
   String? _errorMessage;
+  DateTime? _loadStartedAt;
+  bool _loadDurationLogged = false;
 
   List<Task> get tasks => List.unmodifiable(_tasks);
   bool get isLoading => _isLoading;
   bool get isSaving => _isSaving;
   String? get errorMessage => _errorMessage;
+  DateTime? get loadStartedAt => _loadStartedAt;
+  bool get hasLoggedLoadDuration => _loadDurationLogged;
 
   Future<void> loadTasks() async {
     if (_isLoading || _tasks.isNotEmpty) {
       return;
     }
 
+    _loadStartedAt = DateTime.now();
+    _loadDurationLogged = false;
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
@@ -49,6 +55,18 @@ class TaskProvider extends ChangeNotifier {
       _isLoading = false;
       notifyListeners();
     }
+  }
+
+  void logLoadDurationAfterRender() {
+    if (_loadStartedAt == null || _loadDurationLogged) {
+      return;
+    }
+
+    final end = DateTime.now();
+    final duration = end.difference(_loadStartedAt!);
+
+    debugPrint('API Load: ${duration.inMilliseconds} ms');
+    _loadDurationLogged = true;
   }
 
   Task? taskById(int id) {
